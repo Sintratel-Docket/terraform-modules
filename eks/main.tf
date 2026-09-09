@@ -8,7 +8,27 @@ module "eks" {
   endpoint_public_access  = true
   endpoint_private_access = true
 
+  # Mantiene permisos administrativos para la identidad
+  # que originalmente creó el cluster.
   enable_cluster_creator_admin_permissions = true
+
+  # Permite que GitHub Actions pueda administrar
+  # recursos dentro del cluster Kubernetes.
+  access_entries = {
+    github_actions = {
+      principal_arn = var.github_actions_role_arn
+
+      policy_associations = {
+        cluster_admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+  }
 
   vpc_id     = var.vpc_id
   subnet_ids = var.private_subnet_ids
