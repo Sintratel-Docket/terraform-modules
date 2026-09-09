@@ -8,13 +8,28 @@ module "eks" {
   endpoint_public_access  = true
   endpoint_private_access = true
 
-  # Mantiene permisos administrativos para la identidad
-  # que originalmente creó el cluster.
-  enable_cluster_creator_admin_permissions = true
+  # IMPORTANTE:
+  # No usamos el caller actual como administrador porque
+  # cambia dependiendo de si Terraform corre localmente
+  # o desde GitHub Actions.
+  enable_cluster_creator_admin_permissions = false
 
-  # Permite que GitHub Actions pueda administrar
-  # recursos dentro del cluster Kubernetes.
   access_entries = {
+
+    juanp = {
+      principal_arn = var.cluster_admin_user_arn
+
+      policy_associations = {
+        cluster_admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+
     github_actions = {
       principal_arn = var.github_actions_role_arn
 
@@ -29,6 +44,13 @@ module "eks" {
       }
     }
   }
+
+  # Evita que el administrador de KMS cambie dependiendo
+  # de quién ejecute Terraform.
+  kms_key_administrators = [
+    var.cluster_admin_user_arn,
+    var.github_actions_role_arn
+  ]
 
   vpc_id     = var.vpc_id
   subnet_ids = var.private_subnet_ids

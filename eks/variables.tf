@@ -30,24 +30,29 @@ variable "instance_types" {
 }
 
 variable "min_size" {
-  description = "Minimum number of EKS worker nodes"
+  description = "Minimum number of EKS nodes"
   type        = number
   default     = 1
 }
 
 variable "max_size" {
-  description = "Maximum number of EKS worker nodes"
+  description = "Maximum number of EKS nodes"
   type        = number
   default     = 2
 }
 
 variable "desired_size" {
-  description = "Desired number of EKS worker nodes"
+  description = "Desired number of EKS nodes"
   type        = number
   default     = 1
 }
 
 variable "github_actions_role_arn" {
-  description = "IAM role used by GitHub Actions to manage resources inside EKS"
+  description = "IAM role used by GitHub Actions"
+  type        = string
+}
+
+variable "cluster_admin_user_arn" {
+  description = "IAM user that administers the EKS cluster"
   type        = string
 }
