@@ -67,6 +67,15 @@ module "eks" {
     vpc-cni = {
       before_compute = true
       addon_version  = var.vpc_cni_addon_version
+
+      # Prefix delegation lets each ENI hand out /28 prefixes, raising the
+      # usable pods per node well above the small ENI-based default.
+      configuration_values = var.enable_prefix_delegation ? jsonencode({
+        env = {
+          ENABLE_PREFIX_DELEGATION = "true"
+          WARM_PREFIX_TARGET       = "1"
+        }
+      }) : null
     }
   }
 
@@ -86,6 +95,23 @@ module "eks" {
       labels = {
         Environment = var.environment
       }
+
+      # Prefix delegation only raises capacity if the kubelet --max-pods is
+      # also raised. On AL2023 that is done through a nodeadm NodeConfig
+      # merged into the node bootstrap.
+      cloudinit_pre_nodeadm = var.enable_prefix_delegation ? [
+        {
+          content_type = "application/node.eks.aws"
+          content      = <<-EOT
+            apiVersion: node.eks.aws/v1alpha1
+            kind: NodeConfig
+            spec:
+              kubelet:
+                config:
+                  maxPods: ${var.node_max_pods}
+          EOT
+        }
+      ] : []
     }
   }
 
