@@ -57,6 +57,20 @@ variable "cluster_admin_user_arn" {
   type        = string
 }
 
+variable "additional_cluster_admin_principals" {
+  description = "Additional IAM principals granted EKS cluster administrator access"
+  type        = map(string)
+  default     = {}
+
+  validation {
+    condition = alltrue([
+      for name in keys(var.additional_cluster_admin_principals) :
+      !contains(["juanp", "github_actions"], name)
+    ])
+    error_message = "Additional cluster admin principals must not use the reserved keys juanp or github_actions."
+  }
+}
+
 variable "coredns_addon_version" {
   description = "Pinned CoreDNS EKS add-on version; null selects the latest compatible version"
   type        = string

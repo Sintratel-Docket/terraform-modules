@@ -14,36 +14,52 @@ module "eks" {
   # o desde GitHub Actions.
   enable_cluster_creator_admin_permissions = false
 
-  access_entries = {
+  access_entries = merge(
+    {
+      juanp = {
+        principal_arn = var.cluster_admin_user_arn
 
-    juanp = {
-      principal_arn = var.cluster_admin_user_arn
+        policy_associations = {
+          cluster_admin = {
+            policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
 
-      policy_associations = {
-        cluster_admin = {
-          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+            access_scope = {
+              type = "cluster"
+            }
+          }
+        }
+      }
 
-          access_scope = {
-            type = "cluster"
+      github_actions = {
+        principal_arn = var.github_actions_role_arn
+
+        policy_associations = {
+          cluster_admin = {
+            policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+
+            access_scope = {
+              type = "cluster"
+            }
+          }
+        }
+      }
+    },
+    {
+      for name, principal_arn in var.additional_cluster_admin_principals : name => {
+        principal_arn = principal_arn
+
+        policy_associations = {
+          cluster_admin = {
+            policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+
+            access_scope = {
+              type = "cluster"
+            }
           }
         }
       }
     }
-
-    github_actions = {
-      principal_arn = var.github_actions_role_arn
-
-      policy_associations = {
-        cluster_admin = {
-          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-
-          access_scope = {
-            type = "cluster"
-          }
-        }
-      }
-    }
-  }
+  )
 
   # Evita que el administrador de KMS cambie dependiendo
   # de quién ejecute Terraform.
