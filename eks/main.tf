@@ -56,12 +56,17 @@ module "eks" {
   subnet_ids = var.private_subnet_ids
 
   addons = {
-    coredns = {}
+    coredns = {
+      addon_version = var.coredns_addon_version
+    }
 
-    kube-proxy = {}
+    kube-proxy = {
+      addon_version = var.kube_proxy_addon_version
+    }
 
     vpc-cni = {
       before_compute = true
+      addon_version  = var.vpc_cni_addon_version
     }
   }
 
@@ -72,6 +77,9 @@ module "eks" {
       min_size     = var.min_size
       max_size     = var.max_size
       desired_size = var.desired_size
+
+      ami_release_version            = var.node_ami_release_version
+      use_latest_ami_release_version = var.node_ami_release_version == null
 
       capacity_type = "ON_DEMAND"
 

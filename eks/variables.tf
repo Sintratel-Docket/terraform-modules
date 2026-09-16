@@ -56,3 +56,27 @@ variable "cluster_admin_user_arn" {
   description = "IAM user that administers the EKS cluster"
   type        = string
 }
+
+variable "coredns_addon_version" {
+  description = "Pinned CoreDNS EKS add-on version; null selects the latest compatible version"
+  type        = string
+  default     = null
+}
+
+variable "kube_proxy_addon_version" {
+  description = "Pinned kube-proxy EKS add-on version; null selects the latest compatible version"
+  type        = string
+  default     = null
+}
+
+variable "vpc_cni_addon_version" {
+  description = "Pinned VPC CNI EKS add-on version; null selects the latest compatible version"
+  type        = string
+  default     = null
+}
+
+variable "node_ami_release_version" {
+  description = "Pinned EKS managed node AMI release; null selects the latest compatible release"
+  type        = string
+  default     = null
+}
