@@ -80,3 +80,15 @@ variable "node_ami_release_version" {
   type        = string
   default     = null
 }
+
+variable "enable_prefix_delegation" {
+  description = "Enable VPC CNI prefix delegation to raise the max pods per node (needed on small instance types like t3.small, whose default ENI-based limit is only 11 pods)."
+  type        = bool
+  default     = false
+}
+
+variable "node_max_pods" {
+  description = "Kubelet --max-pods to configure on the nodes when prefix delegation is enabled (AL2023 nodeadm). 110 is the AWS-recommended cap for prefix delegation."
+  type        = number
+  default     = 110
+}
