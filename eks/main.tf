@@ -71,7 +71,7 @@ module "eks" {
   }
 
   eks_managed_node_groups = {
-    dev = {
+    (var.environment) = {
       instance_types = var.instance_types
 
       min_size     = var.min_size
